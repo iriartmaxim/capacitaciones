@@ -1,6 +1,5 @@
 version: 0.1    ## La versión es obligatoria. Especifica la versión de la configuración.
 
-
 log:            ## La subsección log configura el comportamiento del sistema de logs de registro. El sistema del registro envía todo a stout por defecto.
 
   level: debug  ## Este campo establece la sensibilidad del registro. Los valores permitidos son error, warn, info y debug. 
@@ -51,25 +50,21 @@ http:  ## Esta sección detalla la configuración del servidor HTTP que hospeda 
   secret: asecretforlocaldevelopment ## En este campo se puede definir un dato aleatorio. En entornos de producción se debe utilizar un generador criptográfico aleatorio seguro.
   ## También si se se esta creando un cluster de registros detrás de un loadbalancer, hay que asegurarse de que sea el mismo secreto para todos.
 
-  tls:
-    certificate: /path/to/x509/public
-    key: /path/to/x509/private
-    clientcas:
+  tls: ## Armar la estructura de los campos para configurar TLS es opcional pero altamente recomendado.
+  
+    certificate: /path/to/x509/public ## Ruta absoluta al archivo de certificado x509
+    key: /path/to/x509/private ## Ruta absoluta al archivo de clave privada x509.
+    
+    clientcas: ## Una matriz de rutas absolutas a archivos de CA x509.
       - /path/to/ca.pem
       - /path/to/another/ca.pem
-    letsencrypt:
-      cachefile: /path/to/cache-file
-      email: emailused@letsencrypt.com
-      hosts: [myregistryaddress.org]
-  debug:
-    addr: localhost:5001
-    prometheus:
-      enabled: true
-      path: /metrics
-  headers:
-    X-Content-Type-Options: [nosniff]
-  http2:
-    disabled: false
+      
+    minimumtls: tls1.2
+    
+    ciphersuites: ## Cifrados permitidos. En el ejemplo se muestran 2, hay muchos más.
+      - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+      - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+     
     
     
 auth:  ##
@@ -78,11 +73,5 @@ auth:  ##
     service: docker-test ## El servicio que se esta autenticando
     issuer: http://localhost:8080/auth/auth/realms/master ## El nombre del emisor del token. El emisor inserta esto en el token, así que debe coinicidir con el valor configurado para el emisor.
     autoredirect: true ## Cuando se establece en true, el realm se configura automaticamente utilizando el header de la solicitud como el dominio y una ruta /auth/token
-  htpasswd:
-    realm: basic-realm
-    path: /etc/registry
-health:
-  storagedriver:
-    enabled: true
-    interval: 10s
-    threshold: 3
+
+
