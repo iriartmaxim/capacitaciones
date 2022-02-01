@@ -1,36 +1,15 @@
-version: 0.1
-log:
-  fields:
-    service: registry
-storage:
-  cache:
-    blobdescriptor: inmemory
-  filesystem:
-    rootdirectory: /var/lib/registry
-http:
-  addr: :5000
-  headers:
-    X-Content-Type-Options: [nosniff]
-auth:
-  htpasswd:
-    realm: basic-realm
-    path: /etc/registry
-health:
-  storagedriver:
-    enabled: true
-    interval: 10s
-    threshold: 3
+version: 0.1    ## La versión es obligatoria. Especifica la versión de la configuración.
 
 
-version: 0.1
-log:
-  accesslog:
-    disabled: true
-  level: debug
-  formatter: text
-  fields:
-    service: registry
+log:            ## La subsección log configura el comportamiento del sistema de logs de registro. El sistema del registro envía todo a stout por defecto.
+
+  level: debug  ## Este campo establece la sensibilidad del registro. Los valores permitidos son error, warn, info y debug. 
+  formatter: text ## Este campo afecta principalmente como se codifican los atributos clave. Las opciones son text, json y logstash.
+  
+  fields:         ## Esto define el mapa de nombres de campo a valores. 
+    service: registry  ## Se agregan a cada linea del registro con el fin de identificar el origen de los mensajes cuando se mezclan los sistemas.
     environment: staging
+    
   hooks:
     - type: mail
       disabled: true
@@ -45,47 +24,14 @@ log:
         from: sender@example.com
         to:
           - errors@example.com
-loglevel: debug # deprecated: use "log"
-storage:
-  filesystem:
+             
+             
+storage:  ## Esta opción es obligatoria y define el backend de almacenamiento, se debe configurar exactamente un backend. Si se configura más, devolvera un error.
+    
+  filesystem: ## Utiliza el disco local para almacenar.
     rootdirectory: /var/lib/registry
-    maxthreads: 100
-  azure:
-    accountname: accountname
-    accountkey: base64encodedaccountkey
-    container: containername
-  gcs:
-    bucket: bucketname
-    keyfile: /path/to/keyfile
-    credentials:
-      type: service_account
-      project_id: project_id_string
-      private_key_id: private_key_id_string
-      private_key: private_key_string
-      client_email: client@example.com
-      client_id: client_id_string
-      auth_uri: http://example.com/auth_uri
-      token_uri: http://example.com/token_uri
-      auth_provider_x509_cert_url: http://example.com/provider_cert_url
-      client_x509_cert_url: http://example.com/client_cert_url
-    rootdirectory: /gcs/object/name/prefix
-    chunksize: 5242880
-  s3:
-    accesskey: awsaccesskey
-    secretkey: awssecretkey
-    region: us-west-1
-    regionendpoint: http://myobjects.local
-    bucket: bucketname
-    encrypt: true
-    keyid: mykeyid
-    secure: true
-    v4auth: true
-    chunksize: 5242880
-    multipartcopychunksize: 33554432
-    multipartcopymaxconcurrency: 100
-    multipartcopythresholdsize: 33554432
-    rootdirectory: /s3/object/name/prefix
-  swift:
+   
+  swift:     ## Utiliza el almacenamiento de objetos del cluster Openshift.
     username: username
     password: password
     authurl: https://storage.myprovider.com/auth/v1.0 or https://storage.myprovider.com/v2.0 or https://storage.myprovider.com/v3/auth
@@ -97,78 +43,8 @@ storage:
     region: fr
     container: containername
     rootdirectory: /swift/object/name/prefix
-  oss:
-    accesskeyid: accesskeyid
-    accesskeysecret: accesskeysecret
-    region: OSS region name
-    endpoint: optional endpoints
-    internal: optional internal endpoint
-    bucket: OSS bucket
-    encrypt: optional data encryption setting
-    secure: optional ssl setting
-    chunksize: optional size valye
-    rootdirectory: optional root directory
-  inmemory:  # This driver takes no parameters
-  delete:
-    enabled: false
-  redirect:
-    disable: false
-  cache:
-    blobdescriptor: redis
-  maintenance:
-    uploadpurging:
-      enabled: true
-      age: 168h
-      interval: 24h
-      dryrun: false
-    readonly:
-      enabled: false
-auth:
-  silly:
-    realm: silly-realm
-    service: silly-service
-  token:
-    autoredirect: true
-    realm: token-realm
-    service: token-service
-    issuer: registry-token-issuer
-    rootcertbundle: /root/certs/bundle
-  htpasswd:
-    realm: basic-realm
-    path: /path/to/htpasswd
-middleware:
-  registry:
-    - name: ARegistryMiddleware
-      options:
-        foo: bar
-  repository:
-    - name: ARepositoryMiddleware
-      options:
-        foo: bar
-  storage:
-    - name: cloudfront
-      options:
-        baseurl: https://my.cloudfronted.domain.com/
-        privatekey: /path/to/pem
-        keypairid: cloudfrontkeypairid
-        duration: 3000s
-        ipfilteredby: awsregion
-        awsregion: us-east-1, use-east-2
-        updatefrenquency: 12h
-        iprangesurl: https://ip-ranges.amazonaws.com/ip-ranges.json
-  storage:
-    - name: redirect
-      options:
-        baseurl: https://example.com/
-reporting:
-  bugsnag:
-    apikey: bugsnagapikey
-    releasestage: bugsnagreleasestage
-    endpoint: bugsnagendpoint
-  newrelic:
-    licensekey: newreliclicensekey
-    name: newrelicname
-    verbose: true
+   
+   
 http:
   addr: localhost:5000
   prefix: /my/nested/registry/
@@ -195,68 +71,19 @@ http:
     X-Content-Type-Options: [nosniff]
   http2:
     disabled: false
-notifications:
-  events:
-    includereferences: true
-  endpoints:
-    - name: alistener
-      disabled: false
-      url: https://my.listener.com/event
-      headers: <http.Header>
-      timeout: 1s
-      threshold: 10
-      backoff: 1s
-      ignoredmediatypes:
-        - application/octet-stream
-      ignore:
-        mediatypes:
-           - application/octet-stream
-        actions:
-           - pull
-redis:
-  addr: localhost:6379
-  password: asecret
-  db: 0
-  dialtimeout: 10ms
-  readtimeout: 10ms
-  writetimeout: 10ms
-  pool:
-    maxidle: 16
-    maxactive: 64
-    idletimeout: 300s
+    
+    
+auth:  ##
+  token:
+    realm: http://localhost:8080/auth/auth/realms/master/protocol/docker-v2/auth ## El dominio del realm donde se autentica el servidor de registro.
+    service: docker-test ## El servicio que se esta autenticando
+    issuer: http://localhost:8080/auth/auth/realms/master ## El nombre del emisor del token. El emisor inserta esto en el token, así que debe coinicidir con el valor configurado para el emisor.
+    autoredirect: true ## Cuando se establece en true, el realm se configura automaticamente utilizando el header de la solicitud como el dominio y una ruta /auth/token
+  htpasswd:
+    realm: basic-realm
+    path: /etc/registry
 health:
   storagedriver:
     enabled: true
     interval: 10s
     threshold: 3
-  file:
-    - file: /path/to/checked/file
-      interval: 10s
-  http:
-    - uri: http://server.to.check/must/return/200
-      headers:
-        Authorization: [Basic QWxhZGRpbjpvcGVuIHNlc2FtZQ==]
-      statuscode: 200
-      timeout: 3s
-      interval: 10s
-      threshold: 3
-  tcp:
-    - addr: redis-server.domain.com:6379
-      timeout: 3s
-      interval: 10s
-      threshold: 3
-proxy:
-  remoteurl: https://registry-1.docker.io
-  username: [username]
-  password: [password]
-compatibility:
-  schema1:
-    signingkeyfile: /etc/registry/key.json
-    enabled: true
-validation:
-  manifests:
-    urls:
-      allow:
-        - ^https?://([^/]+\.)*example\.com/
-      deny:
-        - ^https?://www\.example\.com/
