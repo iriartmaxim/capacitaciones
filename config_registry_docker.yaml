@@ -45,13 +45,12 @@ storage:  ## Esta opción es obligatoria y define el backend de almacenamiento, 
     rootdirectory: /swift/object/name/prefix
    
    
-http:
-  addr: localhost:5000
-  prefix: /my/nested/registry/
-  host: https://myregistryaddress.org:5000
-  secret: asecretforlocaldevelopment
-  relativeurls: false
-  draintimeout: 60s
+http:  ## Esta sección detalla la configuración del servidor HTTP que hospeda el registro.
+  addr: localhost:5000 ## En este campo se define en cual dirección el servidor acepta conexiones.
+  host: https://myregistryaddress.org:5000 ## Una dirección URL completa accesible externamente para el registro.
+  secret: asecretforlocaldevelopment ## En este campo se puede definir un dato aleatorio. En entornos de producción se debe utilizar un generador criptográfico aleatorio seguro.
+  ## También si se se esta creando un cluster de registros detrás de un loadbalancer, hay que asegurarse de que sea el mismo secreto para todos.
+
   tls:
     certificate: /path/to/x509/public
     key: /path/to/x509/private
